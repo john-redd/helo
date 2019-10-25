@@ -12,7 +12,7 @@ function App() {
     <Provider store={store}>
       <HashRouter>
         <AppMC>
-          {/* <Nav /> */}
+          <Nav />
           {routes}
         </AppMC>
       </HashRouter>

@@ -61,7 +61,8 @@ const Auth = (props) => {
 }
 
 const mapStateToProps = reduxState => {
-  const {user} = reduxState;
+  const {userReducer} = reduxState;
+  const {user} = userReducer;
   return {
     user
   }
