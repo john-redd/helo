@@ -1,52 +1,39 @@
 import React, {useState, useEffect} from 'react';
-import {NavLink} from 'react-router-dom';
 import {connect} from 'react-redux';
 import styled from 'styled-components';
 import searchIcon from '../imgs/search_logo.png';
 import axios from 'axios';
-import Post from './Post';
 
 const Dashboard = (props) => {
   const [posts, setPosts] = useState([]);
   const [search, setSearch] = useState('');
-  const [userPosts, setUserPosts] = useState(false);
+  const [userPosts, setUserPosts] = useState(true);
   const [filter, setFilter] = useState(false);
 
-  const getPosts = () => {
-    axios.get('/api/posts')
+  const getPosts = async () => {
+    await axios.get('/api/posts')
     .then(res => {
-      if(!filter && !userPosts){
-
-        let filteredPosts = res.data.filter(e => {
-          return e.user_id !== props.user.user_id;
-        })
-        setPosts(filteredPosts);
-      } else {
         setPosts(res.data)
-      }
     })
     .catch(err => console.log(err));
+
+    filteredPosts();
   }
 
   useEffect(() => {
     getPosts();
-  }, [])
+  }, [userPosts, filter])
 
   const goToPost = (e) => {
     props.history.push(`/post/${e.target.id}`)
   }
 
   const filterPosts = () => {
-    if(filter){
-      setFilter(false)
-    } else {
-      setFilter(true);
-    }
-    // filteredPosts();
+    setFilter(prevState => !prevState)
   }
 
 
-  const filteredPosts = () => {
+  const filteredPosts = async () => {
     if(filter && userPosts){
       let filteredPosts = posts.filter(e => {
         return e.title.toLowerCase().includes(search.toLowerCase());
@@ -65,36 +52,36 @@ const Dashboard = (props) => {
       setPosts(filteredPosts);
     }
 
+    if(!filter && !userPosts){
+      let filteredPosts = posts.filter(e => {
+        return e.user_id !== props.user.user_id;
+      })
+      setPosts(filteredPosts);
+    }
   }
 
-  useEffect(() => {
-    filteredPosts()
-  }, [filter])
+  
+  const flipCheckBox = () => {
+    setUserPosts(prevState => !prevState);
+  }
+  
+  const reset = () => {
+    setFilter(false);
+    setSearch('');
+  }
 
   return (
     <DashboardMC>
       <SearchBarMC>
         <SearchBar value={search} onChange={e => setSearch(e.target.value)} />
         <SearchIcon src={searchIcon} onClick={filterPosts} />
-        <Button>Reset</Button>
+        <Button onClick={reset}>Reset</Button>
         <Text>My Posts</Text>
-        <input type="checkbox" checked/>
+        <input type="checkbox" checked={userPosts} onClick={flipCheckBox}/>
       </SearchBarMC>
       <PostsContainer>
-        {/* {posts.map((e, i) => {
-          return (
-            <Post
-              key={`Post ${i}`}
-              postId={e.post_id}
-              title={e.title}
-              img={e.img}
-              content={e.content}
-              userId={e.user_id} />
-          )
-        })} */}
         {posts.map((e, i) => {
           return (
-            // <NavLink to={`/post/${e.post_id}`}>
               <PostSnippet id={e.post_id} onClick={goToPost}>
                 <Title>{e.title}</Title>
                 <StyledDiv>
@@ -102,7 +89,6 @@ const Dashboard = (props) => {
                     <SmallerProfileImg src={e.profile_pic} />
                 </StyledDiv>
               </PostSnippet>
-            // </NavLink>
           )
         })}
       </PostsContainer>

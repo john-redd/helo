@@ -50,8 +50,10 @@ const NavMC = styled.section`
   float: left;
 
   position: fixed;
+  box-shadow: 4px 0 5px -2px rgba(0, 0, 0, .5);
 
-  display: ${props => props.props === "/" ? 'none' : 'inline'}
+  display: ${props => props.props === "/" ? 'none' : 'inline'};
+
 `
 
 const ProfileImg = styled.img`
